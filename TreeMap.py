@@ -7,71 +7,82 @@ class Node:
 
 
 class TreeMap:
-    def __init__(self, root):
-        self.root = None
+    def __init__(self, root=None):
+        self.root = root
         self.size = 0
 
     def __setitem__(self, key, value):
-        def inner_setitem(node):
+        def add(node):
             if node is None:
                 return Node(key, value)
             else:
                 if key == node.key:
                     node.value = value
                 elif key < node.key:
-                    node.left = inner_setitem(node.left)
+                    node.left = add(node.left)
                 else:
-                    node.right = inner_setitem(node.right)
+                    node.right = add(node.right)
 
                 return node
 
+        self.root = add(self.root)
+        self.size += 1
+
     def __getitem__(self, key):
-        def inner_getitem(node):
-            if node is None:
-                raise KeyError
-
-            if key == node.key:
+        if self.root is None:
+            raise KeyError
+        else:
+            node = self.get(key, self.root)
+            if node is not None:
                 return node.value
+        raise KeyError
 
-            elif key < node.key:
-                return inner_getitem(node.left)
-            else:
-                return inner_getitem(node.right)
-
-        return inner_getitem(self.root)
+    def get(self, key, node):
+        if key < node.key:
+            return self.get(key, node.left)
+        elif key > node.key:
+            return self.get(key, node.right)
+        elif node.key == key:
+            return node
+        else:
+            return None
 
     @staticmethod
-    def find_min_node(node):
+    def find_minn(node):
         if node.left is not None:
-            return TreeMap.find_min_node(node.left)
+            return TreeMap.find_minn(node.left)
         return node
 
     def __delitem__(self, key):
-        def inner_delitem(node, key):
-            if node is None:
-                raise KeyError
+        self.root = self.delete(self.root, key)
 
-            if key < node.key:
-                node.left = inner_delitem(node.left, key)
-                return node
-            elif key > node.key:
-                result = inner_delitem(node.right, key)
-                node.right = result
-                return node
-
+    def delete(self, node, key):
+        if node is None:
+            raise KeyError
+        elif key > node.key:
+            result = self.delete(node.right, key)
+            node.right = result
+            return node
+        elif key < node.key:
+            result = self.delete(node.left, key)
+            node.left = result
+            return node
+        else:
+            if node.left is None and node.right is None:
+                return None
+            elif node.left is not None and node.right is None:
+                return node.left
+            elif node.left is None and node.right is not None:
+                return node.right
             else:
+                minn = TreeMap.find_minn(node.right)
+                node.key, node.value = minn.key, minn.value
+                node.right = self.delete(node.right,    minn.key)
+                return node
 
-                if node.left is None and node.right is None:
-                    return None
-                elif node.left is not None and node.right is None:
-                    return node.left
-                elif node.left is None and node.right is not None:
-                    return node.right
-                else:
-                    min_node = TreeMap.find_min_node(node.right)
-                    node.key = min_node.key
-                    node.value = min_node.value
-                    node.right = inner_delitem(node.right, min_node.key)
+    def __iter__(self):
+        if self.root is not None:
+            yield from self.root
 
-                    return node
-        self.root = inner_delitem(self.root, key)
+    def size(self):
+        return self.size
