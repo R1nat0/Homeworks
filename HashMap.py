@@ -19,7 +19,7 @@ class HashMap:
                 element[1] = value
                 break
         else:
-            self.bucket[hash].add_item([key, value])
+            self.bucket[hash].add([key, value])
             self.length += 1
 
         if self.length >= self.size * 0.8:
