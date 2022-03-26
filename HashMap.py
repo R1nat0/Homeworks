@@ -1,4 +1,4 @@
-from LinkedList import LinkedList
+from linked_list import LinkedList
 
 class HashMap:
     def __init__(self, size=2**3):
@@ -6,14 +6,14 @@ class HashMap:
         self.bucket = [LinkedList() for i in range(size)]
         self.length = 0
 
-    def _get_hash(self, key):
-            hash = 0
-            for char in str(key):
-                    hash += ord(char)
-            return hash % self.size
+    def hash(self, key):
+        hash = 0
+        for char in str(key):
+            hash += ord(char)
+        return hash % self.size
     
     def __setitem__(self, key, value):
-        hash = self._get_hash(key)
+        hash = self.hash(key)
         for element in self.bucket[hash]:
             if key == element[0]:
                 element[1] = value
@@ -28,7 +28,7 @@ class HashMap:
                 [LinkedList() for i in range(self.size)]
 
     def __getitem__(self, key):
-        hash = self._get_hash(key)
+        hash = self.hash(key)
         for element in self.bucket[hash]:
             if element[0] == key:
                 return element[1]
@@ -44,7 +44,7 @@ class HashMap:
         return s
 
     def __delitem__(self, key):
-        hash = self._get_hash(key)
+        hash = self.hash(key)
         if self.bucket[hash] is not None:
             self.bucket[hash] = LinkedList()
             self.length -= 1
